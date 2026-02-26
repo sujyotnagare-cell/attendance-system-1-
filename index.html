@@ -1,53 +1,47 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Attendance Management System</title>
-    <style>
-        body {
-            font-family: Arial;
-            background: #f4f6f8;
-            padding: 20px;
-        }
-        h1 {
-            text-align: center;
-        }
-        input, button {
-            padding: 8px;
-            margin: 5px;
-        }
-        .student {
-            background: white;
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 5px;
-        }
-    </style>
-</head>
-<body>
-
-<h1>Attendance Management System</h1>
-
-<input type="text" id="name" placeholder="Student Name">
-<button onclick="addStudent()">Add Student</button>
-
-<div id="list"></div>
-
 <script>
-    function addStudent() {
-        let name = document.getElementById("name").value;
-        if (name === "") return;
+let students = JSON.parse(localStorage.getItem("students")) || [];
 
+function saveData() {
+    localStorage.setItem("students", JSON.stringify(students));
+}
+
+function loadStudents() {
+    document.getElementById("list").innerHTML = "";
+    students.forEach((s, i) => {
         let div = document.createElement("div");
         div.className = "student";
+        div.style.background = s.status === "Present" ? "lightgreen" :
+                               s.status === "Absent" ? "lightcoral" : "white";
         div.innerHTML = `
-            <b>${name}</b>
-            <button onclick="this.parentElement.style.background='lightgreen'">Present</button>
-            <button onclick="this.parentElement.style.background='lightcoral'">Absent</button>
+            <b>${s.name}</b>
+            <button onclick="markPresent(${i})">Present</button>
+            <button onclick="markAbsent(${i})">Absent</button>
         `;
         document.getElementById("list").appendChild(div);
-        document.getElementById("name").value = "";
-    }
-</script>
+    });
+}
 
-</body>
-</html>
+function addStudent() {
+    let name = document.getElementById("name").value;
+    if (name === "") return;
+
+    students.push({ name: name, status: "" });
+    saveData();
+    loadStudents();
+    document.getElementById("name").value = "";
+}
+
+function markPresent(index) {
+    students[index].status = "Present";
+    saveData();
+    loadStudents();
+}
+
+function markAbsent(index) {
+    students[index].status = "Absent";
+    saveData();
+    loadStudents();
+}
+
+loadStudents();
+</script>
